@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💻 Rubina</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+/* Reset & body */
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+    font-family:'Poppins',sans-serif;
+    background-color:#f2f2f2; /* simple light background */
+    color:#333;
+    min-height:100vh;
+}
+h1,h2,h3{font-weight:700;}
+a{text-decoration:none;color:#333;}
+a:hover{text-decoration:underline;}
+
+/* Container */
+.container{max-width:900px;margin:40px auto;padding:20px;}
+
+/* Tabs */
+.tabs{display:flex;flex-wrap:wrap;margin-bottom:20px;}
+.tab{flex:1;text-align:center;padding:12px 0;cursor:pointer;border-radius:12px 12px 0 0;background:#ddd;margin-right:5px;font-weight:600;transition:0.3s;}
+.tab.active{background:#4CAF50;color:#fff;}
+.tab:hover{background:#66BB6A;color:#fff;}
+
+/* Card */
+.card{background:#fff;border-radius:15px;padding:20px;box-shadow:0 4px 15px rgba(0,0,0,0.1);margin-bottom:30px;transition:0.3s;}
+.card:hover{transform:translateY(-3px);}
+
+/* Labels and inputs */
+label{display:block;margin-top:10px;margin-bottom:5px;font-weight:500;}
+textarea,input,select{width:100%;padding:12px;margin-bottom:10px;border-radius:12px;border:1px solid #ccc;outline:none;font-family:monospace;}
+textarea{resize:none;background:#f9f9f9;color:#333;}
+input{background:#f9f9f9;color:#333;}
+select{width:100%;padding:10px;border-radius:12px;background:#f9f9f9;color:#333;border:1px solid #ccc;margin-bottom:10px;}
+
+/* Buttons */
+button{background:#4CAF50;color:#fff;font-weight:700;padding:10px 20px;margin-top:10px;border:none;border-radius:12px;cursor:pointer;transition:0.3s;}
+button:hover{background:#45A049;transform:scale(1.05);}
+
+/* Output */
+pre{background:#e0e0e0;padding:15px;border-radius:12px;overflow-x:auto;color:#333;font-size:16px;line-height:1.4;margin-top:10px;}
+@media(max-width:768px){.container{padding:10px;}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1 style="text-align: center;">💻 Rubina</h1>
+<p style="text-align: center;">Run <b>Python, C, C++, Java, NodeJS, PHP</b> programs!</p>
+
+<!-- Tabs -->
+<div class="tabs">
+  <div class="tab active" onclick="switchLang('python3')">Python 3</div>
+  <div class="tab" onclick="switchLang('c')">C</div>
+  <div class="tab" onclick="switchLang('cpp')">C++</div>
+  <div class="tab" onclick="switchLang('java')">Java</div>
+  <div class="tab" onclick="switchLang('php')">PHP</div>
+  <div class="tab" onclick="switchLang('nodejs')">NodeJS</div>
+</div>
+
+<div class="card">
+  <label>Version Index:</label>
+  <input type="text" id="versionIndex" value="3">
+
+  <label>Code:</label>
+  <textarea id="code" rows="20" placeholder="Write your code here (use input() for Python, stdin for C/PHP if needed)..."></textarea>
+
+  <button onclick="runCode()">Run Code</button>
+
+  <h3>Output:</h3>
+  <pre id="output">(Output will appear here)</pre>
+</div>
+</div>
+
+<script>
+let currentLang = 'python3';
+function switchLang(lang){
+  currentLang = lang;
+  document.querySelectorAll('.tab').forEach(tab=>tab.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+async function runCode(){
+  const code = document.getElementById('code').value;
+  const versionIndex = document.getElementById('versionIndex').value || "3";
+  const out = document.getElementById('output');
+  out.textContent = "Running...";
+
+  try{
+    const resp = await fetch('/run', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        code: code,
+        language: currentLang,
+        versionIndex: versionIndex
+      })
+    });
+    const j = await resp.json();
+    out.textContent = j.ok ? (j.result || JSON.stringify(j.meta,null,2)) : "Error: "+j.error;
+  }catch(e){
+    out.textContent = "Error: "+e;
+  }
+}
+</script>
+</body>
+</html>
